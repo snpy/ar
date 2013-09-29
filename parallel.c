@@ -43,6 +43,7 @@ MPI_Datatype MPI_column;
 // former _debug
 void d(const char*, ...);
 
+void initialize_globals(char**);
 void print_board();
 
 double initial_voltage(const int, const int);
@@ -81,29 +82,7 @@ int main(int argc, char* argv[]) {
 		return 1;
 	}
 
-	// Screen size.
-	screen_width = atoi(argv[1]);
-	screen_height = atoi(argv[2]);
-
-	// Wire inside screen size.
-	wire_width = atoi(argv[3]);
-	wire_height = atoi(argv[4]);
-
-	if (screen_width <= wire_width) {
-		screen_width = wire_width;
-		wire_width = atoi(argv[1]);
-	}
-
-	if (screen_height <= wire_height) {
-		screen_height = wire_height;
-		wire_height = atoi(argv[2]);
-	}
-
-	// Wire constant voltage; input as mV thus "/ 1000" part.
-	wire_voltage = atoi(argv[5]) / 1000;
-
-	// Maximum number of iterations.
-	iteration_limit = atoi(argv[6]);
+	initialize_globals(argv);
 
 	d("Initiate MPI world%s", ".");
 	MPI_Init(&argc, &argv);
@@ -212,6 +191,32 @@ void d(const char* format, ...) {
 	vprintf(_format, args);
 /**/
 	va_end(args);
+}
+
+void initialize_globals(char* argv[]) {
+	// Screen size.
+	screen_width = atoi(argv[1]);
+	screen_height = atoi(argv[2]);
+
+	// Wire inside screen size.
+	wire_width = atoi(argv[3]);
+	wire_height = atoi(argv[4]);
+
+	if (screen_width <= wire_width) {
+		screen_width = wire_width;
+		wire_width = atoi(argv[1]);
+	}
+
+	if (screen_height <= wire_height) {
+		screen_height = wire_height;
+		wire_height = atoi(argv[2]);
+	}
+
+	// Wire constant voltage; input as mV thus "/ 1000" part.
+	wire_voltage = atoi(argv[5]) / 1000;
+
+	// Maximum number of iterations.
+	iteration_limit = atoi(argv[6]);
 }
 
 void print_board() {
