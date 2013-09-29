@@ -216,20 +216,20 @@ void d(const char* format, ...) {
 
 void print_board() {
 	printf("Board layout:\n");
-	for (int i = 0; i < process_board_x; ++i) {
+	for (int i = 0; i < process_board_y; ++i) {
 		if (0 == i) {
 			printf("-");
-			for (int j = 0; j < process_board_y; ++j) {
+			for (int j = 0; j < process_board_x; ++j) {
 				printf("-----");
 			}
 			printf("\n");
 		}
 		printf("|");
-		for (int j = 0; j < process_board_y; ++j) {
-			printf(" %02d |", j + i * process_board_y);
+		for (int j = 0; j < process_board_x; ++j) {
+			printf(" %02d |", j + i * process_board_x);
 		}
 		printf("\n-");
-		for (int j = 0; j < process_board_y; ++j) {
+		for (int j = 0; j < process_board_x; ++j) {
 			printf("-----");
 		}
 		printf("\n");
