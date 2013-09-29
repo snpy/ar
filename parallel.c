@@ -43,6 +43,8 @@ MPI_Datatype MPI_column;
 // former _debug
 void d(const char*, ...);
 
+void print_board();
+
 double initial_voltage(const int, const int);
 int is_wire(const int, const int);
 int is_outside(const int, const int);
@@ -121,6 +123,10 @@ int main(int argc, char* argv[]) {
 	process_board_y = available_processes / process_board_x;
 	process_x = process_number % process_board_x;
 	process_y = process_number / process_board_x;
+
+	if (0 == process_number) {
+		print_board();
+	}
 
 	printf("My rank: %d.\nMy location: %d:%d (board size: %d:%d)\n", process_number, process_x, process_y, process_board_x, process_board_y);
 	if (process_number >= process_board_x * process_board_y) {
@@ -206,6 +212,28 @@ void d(const char* format, ...) {
 	vprintf(_format, args);
 /**/
 	va_end(args);
+}
+
+void print_board() {
+	printf("Board layout:\n");
+	for (int i = 0; i < process_board_x; ++i) {
+		if (0 == i) {
+			printf("-");
+			for (int j = 0; j < process_board_y; ++j) {
+				printf("-----");
+			}
+			printf("\n");
+		}
+		printf("|");
+		for (int j = 0; j < process_board_y; ++j) {
+			printf(" %02d |", j + i * process_board_y);
+		}
+		printf("\n-");
+		for (int j = 0; j < process_board_y; ++j) {
+			printf("-----");
+		}
+		printf("\n");
+	}
 }
 
 double initial_voltage(const int x, const int y) {
