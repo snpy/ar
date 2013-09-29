@@ -1,0 +1,12 @@
+set surface 
+set contour surface
+
+set view 60, 30, 1, 1
+set clabel '%8.2f'
+set key right
+set title "Voltage calculation"
+set xlabel "X [%]"
+set ylabel "Y [%]"
+set zlabel "Z [V]"
+
+splot "data-0x0.txt" using 1:2:3 notitle with lines
