@@ -1,0 +1,7 @@
+seq
+seq-copy
+par
+par-copy
+data-*x*.txt
+results.txt
+
