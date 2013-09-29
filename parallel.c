@@ -108,6 +108,12 @@ int main(int argc, char* argv[]) {
 	MPI_Comm_size(MPI_COMM_WORLD, &available_processes);
 	MPI_Comm_rank(MPI_COMM_WORLD, &process_number);
 
+	if (available_processes < 2) {
+		printf("%s can be used only with at least two nodes\n", argv[0]);
+		finalize();
+		return 0;
+	}
+
 	wire_shift_x = (screen_width - wire_width) / 2;
 	wire_shift_y = (screen_height - wire_height) / 2;
 
