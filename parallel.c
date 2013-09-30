@@ -348,14 +348,18 @@ double calculation(const int iterate) {
 // Get point data; wrap coordinates to fit segment box.
 double* get_point_address(int x, int y) {
 	if (x < 0) {
-		x += segment_size_x;
+		while (x < 0) {
+			x += segment_size_x;
+		}
 	} else {
 		while (x >= segment_size_x) {
 			x -= segment_size_x;
 		}
 	}
 	if (y < 0) {
-		y += segment_size_y;
+		while (y < 0) {
+			y += segment_size_y;
+		}
 	} else {
 		while (y >= segment_size_y) {
 			y -= segment_size_y;
