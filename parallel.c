@@ -127,7 +127,7 @@ int main(int argc, char* argv[]) {
 	}
 
 	d("Register custom MPI type%s", ".");
-	MPI_Type_vector(segment_size_y - 2, 1, segment_size_x, MPI_DOUBLE, &MPI_column);
+	MPI_Type_vector(segment_size_y - 2, 1, segment_size_x - 2, MPI_DOUBLE, &MPI_column);
 	MPI_Type_commit(&MPI_column);
 
 	timer = MPI_Wtime();
