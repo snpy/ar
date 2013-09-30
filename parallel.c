@@ -401,10 +401,6 @@ int bottom_point(const int x, const int y) {
 	return -1;
 }
 
-int normalize_segment(int point) {
-	return (-1 == point) ? point : ceil(1.0 * point * (process_board_x * process_board_y) / (screen_width * screen_height));
-}
-
 int left_segment() {
 	if (0 >= process_x) {
 		return -1;
