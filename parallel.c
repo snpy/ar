@@ -138,10 +138,10 @@ int main(int argc, char* argv[]) {
 		calculation(iteration);
 		communicate(iteration);
 		++iteration;
-		if (process_number == 0 && 20 * iteration / iteration_limit > progress) {
-			progress = 20 * iteration / iteration_limit;
+		if (process_number == 0 && 100 * iteration / iteration_limit > progress) {
+			progress = 100 * iteration / iteration_limit;
 
-			display_progress(5 * progress, 80);
+			display_progress(progress, 80);
 //			printf("Progress: %d%% (%d of %d)\n", 5 * progress, iteration, iteration_limit);
 		}
 	}
