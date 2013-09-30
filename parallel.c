@@ -34,9 +34,9 @@ MPI_Datatype MPI_column;
 
 /*
 #ifdef DEBUG
-#define d(format, args...)
-#else
 #define d(format, args...) _debug
+#else
+#define d(format, args...)
 #endif
 */
 
@@ -108,7 +108,7 @@ int main(int argc, char* argv[]) {
 		print_board();
 	}
 
-	printf("My rank: %d.\nMy location: %d:%d (board size: %d:%d)\n", process_number, process_x, process_y, process_board_x, process_board_y);
+//	printf("My rank: %d.\nMy location: %d:%d (board size: %d:%d)\n", process_number, process_x, process_y, process_board_x, process_board_y);
 	if (process_number >= process_board_x * process_board_y) {
 		printf("I'm out of board. Destroy MPI world.\n");
 		finalize();
