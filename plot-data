@@ -9,4 +9,5 @@ set xlabel "X [%]"
 set ylabel "Y [%]"
 set zlabel "Z [V]"
 
-splot "data-0x0.txt" using 1:2:3 notitle with lines
+#splot "data-0x0.txt" using 1:2:3 notitle with lines
+splot "< cat data-*.txt | sort -n" using 1:2:3 notitle with lines
