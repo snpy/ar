@@ -43,6 +43,7 @@ MPI_Datatype MPI_column;
 // former _debug
 void d(const char*, ...);
 
+void display_progress(int, int);
 void initialize_globals(char**);
 void print_board();
 
@@ -138,8 +139,13 @@ int main(int argc, char* argv[]) {
 		++iteration;
 		if (process_number == 0 && 20 * iteration / iteration_limit > progress) {
 			progress = 20 * iteration / iteration_limit;
-			printf("Progress: %d%% (%d of %d)\n", 5 * progress, iteration, iteration_limit);
+
+			display_progress(5 * progress, 80);
+//			printf("Progress: %d%% (%d of %d)\n", 5 * progress, iteration, iteration_limit);
 		}
+	}
+	if (0 == process_number) {
+		printf("\n");
 	}
 	timer = MPI_Wtime() - timer;
 
@@ -185,12 +191,32 @@ void d(const char* format, ...) {
 	va_start(args, format);
 
 /**/
-	char _format[500];
-	sprintf(_format, "%s:%d (%s): %s", __FILE__, __LINE__, __FUNCTION__, format);
-	sprintf(_format, "%d (%d:%d): %s\n", process_number, process_x, process_y, _format);
-	vprintf(_format, args);
+//	char _format[500];
+//	sprintf(_format, "%s:%d (%s): %s", __FILE__, __LINE__, __FUNCTION__, format);
+//	sprintf(_format, "%d (%d:%d): %s\n", process_number, process_x, process_y, _format);
+//	vprintf(_format, args);
 /**/
 	va_end(args);
+}
+
+void display_progress(int percent, int width) {
+	int i;
+	int middle;
+
+	printf("%3d%% [", percent);
+
+	middle = width * percent / 100.0;
+
+	for (i = 0; i < middle; ++i) {
+		printf("=");
+	}
+
+	for (i = middle; i < width; ++i) {
+		printf(" ");
+	}
+
+//	printf("]\n\033[F\033[J");
+	printf("]\r");
 }
 
 void initialize_globals(char* argv[]) {
