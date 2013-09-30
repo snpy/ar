@@ -104,9 +104,6 @@ int main(int argc, char* argv[]) {
 	process_x = process_number % process_board_x;
 	process_y = process_number / process_board_x;
 
-	if (0 == process_number) {
-		print_board();
-	}
 
 //	printf("My rank: %d.\nMy location: %d:%d (board size: %d:%d)\n", process_number, process_x, process_y, process_board_x, process_board_y);
 	if (process_number >= process_board_x * process_board_y) {
@@ -119,6 +116,10 @@ int main(int argc, char* argv[]) {
 	segment_size_x = screen_width / process_board_x + 2;
 	segment_size_y = screen_height / process_board_y + 2;
 	data = (double*) malloc(sizeof(double) * segment_size_x * segment_size_y);
+
+	if (0 == process_number) {
+		print_board();
+	}
 
 	for (y = 0; y < segment_size_y; ++y) {
 		for (x = 0; x < segment_size_x; ++x) {
