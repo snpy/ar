@@ -406,37 +406,35 @@ int normalize_segment(int point) {
 }
 
 int left_segment() {
-  int point = left_point(process_x, process_y);
-	int segment = normalize_segment(point);
+	if (0 >= process_x) {
+		return -1;
+	}
 
-  return segment;
+	return process_y * process_board_x + process_x - 1;
 }
 
 int right_segment() {
-  int point = right_point(process_x, process_y);
-	int segment = normalize_segment(point);
+	if (process_x + 1 >= process_board_x) {
+		return -1;
+	}
 
-  return segment;
-
-	return (-1 == point) ? point : ceil(1.0 * point / (process_board_x * process_board_y));
+	return process_y * process_board_x + process_x + 1;
 }
 
 int top_segment() {
-  int point = top_point(process_x, process_y);
-	int segment = normalize_segment(point);
+	if (0 >= process_y) {
+		return -1;
+	}
 
-  return segment;
-
-	return (-1 == point) ? point : ceil(1.0 * point / (process_board_x * process_board_y));
+	return (process_y - 1) * process_board_x + process_x;
 }
 
 int bottom_segment() {
-  int point = bottom_point(process_x, process_y);
-	int segment = normalize_segment(point);
+	if (process_y + 1 >= process_board_y) {
+		return -1;
+	}
 
-  return segment;
-
-	return (-1 == point) ? point : ceil(1.0 * point / (process_board_x * process_board_y));
+	return (process_y + 1) * process_board_x + process_x;
 }
 
 int file_exists(const char* filename) {
