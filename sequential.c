@@ -31,13 +31,20 @@ int process_x, process_y;
 // MPI specific definitions.
 int available_processes, process_number;
 
+/*
 #ifdef DEBUG
 #define d(format, args...) _debug
 #else
 #define d(format, args...)
 #endif
+*/
 
-void _debug(const char*, ...);
+// former _debug
+void d(const char*, ...);
+
+void display_progress(int, int);
+void initialize_globals(char**);
+void print_board();
 
 double initial_voltage(const int, const int);
 int is_wire(const int, const int);
@@ -76,29 +83,7 @@ int main(int argc, char* argv[]) {
 		return 1;
 	}
 
-	// Screen size.
-	screen_width = atoi(argv[1]);
-	screen_height = atoi(argv[2]);
-
-	// Wire inside screen size.
-	wire_width = atoi(argv[3]);
-	wire_height = atoi(argv[4]);
-
-	if (screen_width <= wire_width) {
-		screen_width = wire_width;
-		wire_width = atoi(argv[1]);
-	}
-
-	if (screen_height <= wire_height) {
-		screen_height = wire_height;
-		wire_height = atoi(argv[2]);
-	}
-
-	// Wire constant voltage; input as mV thus "/ 1000" part.
-	wire_voltage = atoi(argv[5]) / 1000;
-
-	// Maximum number of iterations.
-	iteration_limit = atoi(argv[6]);
+	initialize_globals(argv);
 
 	d("Simulating MPI world");
 	available_processes = 1;
@@ -112,17 +97,21 @@ int main(int argc, char* argv[]) {
 	process_x = process_number % process_board_x;
 	process_y = process_number / process_board_x;
 
-	printf("My rank: %d.\nMy location: %d:%d (board size: %d:%d)\n", process_number, process_x, process_y, process_board_x, process_board_y);
+//	printf("My rank: %d.\nMy location: %d:%d (board size: %d:%d)\n", process_number, process_x, process_y, process_board_x, process_board_y);
 	if (process_number >= process_board_x * process_board_y) {
 		printf("I'm out of board. Should never happen!\n");
 		finalize();
 		return 0;
 	}
 
-	d("Initiate data storage");
+	d("Initiate data storage%s", ".");
 	segment_size_x = screen_width / process_board_x + 2;
 	segment_size_y = screen_height / process_board_y + 2;
 	data = (double*) malloc(sizeof(double) * segment_size_x * segment_size_y);
+
+	if (0 == process_number) {
+		print_board();
+	}
 
 	for (y = 0; y < segment_size_y; ++y) {
 		for (x = 0; x < segment_size_x; ++x) {
@@ -130,28 +119,26 @@ int main(int argc, char* argv[]) {
 		}
 	}
 
-    if (screen_width < 120 && screen_height < 120) {
-		for (y = 0; y < segment_size_y; ++y) {
-			for (x = 0; x < segment_size_x; ++x) {
-				printf("%s ", is_wire(x, y) ? "x" : (is_outside(x, y) ? "o" : "."));
-			}
-			printf("\n");
-		}
-	}
 
-	d("Register custom MPI type (not applicable)");
+
+	d("Register custom MPI type (not applicable)%s", ".");
 
 	start = clock();
 	communicate(iteration);
 	while (iteration < iteration_limit) {
-		d("Iterations start");
+		d("Iterations start%s", ".");
 		calculation(iteration);
 		communicate(iteration);
 		++iteration;
-		if (process_number == 0 && 20 * iteration / iteration_limit > progress) {
-			progress = 20 * iteration / iteration_limit;
-			printf("Progress: %d%% (%d of %d)\n", 5 * progress, iteration, iteration_limit);
+		if (process_number == 0 && 100 * iteration / iteration_limit > progress) {
+			progress = 100 * iteration / iteration_limit;
+
+			display_progress(progress, 80);
+//			printf("Progress: %d%% (%d of %d)\n", 5 * progress, iteration, iteration_limit);
 		}
+	}
+	if (0 == process_number) {
+		printf("\n");
 	}
 	timer = (double) (clock() - start) / CLOCKS_PER_SEC;
 
@@ -191,15 +178,79 @@ int main(int argc, char* argv[]) {
 	return 0;
 }
 
-void _debug(const char* format, ...) {
+// former _debug
+void d(const char* format, ...) {
 	va_list args;
 	va_start(args, format);
 
-	char _format[500];
-	sprintf(_format, "%s:%d (%s): %s", __FILE__, __LINE__, __FUNCTION__, format);
-	sprintf(_format, "%d (%d:%d): %s\n", process_number, process_x, process_y, _format);
-	vprintf(_format, args);
+/**/
+//	char _format[500];
+//	sprintf(_format, "%s:%d (%s): %s", __FILE__, __LINE__, __FUNCTION__, format);
+//	sprintf(_format, "%d (%d:%d): %s\n", process_number, process_x, process_y, _format);
+//	vprintf(_format, args);
+/**/
 	va_end(args);
+}
+
+void display_progress(int percent, int width) {
+	int i;
+	int middle;
+
+	printf("%3d%% [", percent);
+
+	middle = width * percent / 100.0;
+
+	for (i = 0; i < middle; ++i) {
+		printf("=");
+	}
+
+	for (i = middle; i < width; ++i) {
+		printf(" ");
+	}
+
+//	printf("]\n\033[F\033[J");
+	printf("]\r");
+}
+
+void initialize_globals(char* argv[]) {
+	// Screen size.
+	screen_width = atoi(argv[1]);
+	screen_height = atoi(argv[2]);
+
+	// Wire inside screen size.
+	wire_width = atoi(argv[3]);
+	wire_height = atoi(argv[4]);
+
+	if (screen_width <= wire_width) {
+		screen_width = wire_width;
+		wire_width = atoi(argv[1]);
+	}
+
+	if (screen_height <= wire_height) {
+		screen_height = wire_height;
+		wire_height = atoi(argv[2]);
+	}
+
+	// Wire constant voltage; input as mV thus "/ 1000" part.
+	wire_voltage = atoi(argv[5]) / 1000;
+
+	// Maximum number of iterations.
+	iteration_limit = atoi(argv[6]);
+}
+
+void print_board() {
+    if (screen_width > 120 || screen_height > 120) {
+		return;
+	}
+
+	printf("Board layout (%dx%d):\n", screen_width, screen_height);
+
+	for (int y = 0; y < segment_size_y; ++y) {
+		for (int x = 0; x < segment_size_x; ++x) {
+			printf("%s ", is_wire(x, y) ? "x" : (is_outside(x, y) ? "o" : "."));
+		}
+		printf("\n");
+	}
 }
 
 double initial_voltage(const int x, const int y) {
@@ -249,7 +300,7 @@ double calculation(const int iterate) {
 	// Vt + Vr + Vb + Vl - 4Vx = 0
 	int y, x;
 	double maxStepSize, pde, stepSize;
-	d("Calculation step");
+	d("Calculation step (iterate: %d)", iterate);
 	maxStepSize = 0;
 
 	for (y = 1; y < segment_size_y - 1; ++y) {
@@ -267,7 +318,6 @@ double calculation(const int iterate) {
 				+ data[left_point(x, y)]
 				+ data[right_point(x, y)];
 			pde *= .25;
-//			printf("%dx%d(%d): %d %d %d %d\t", x, y, x + y * segment_size_x, top_point(x, y), right_point(x, y), bottom_point(x, y), left_point(x, y));
 
 			stepSize = abs(pde - data[y * segment_size_x + x]);
 			if (stepSize > maxStepSize) {
@@ -276,9 +326,7 @@ double calculation(const int iterate) {
 
 			data[y * segment_size_x + x] = pde;
 		}
-//		printf("\n");
 	}
-//	printf("\n");
 
 	return maxStepSize;
 }
@@ -286,14 +334,18 @@ double calculation(const int iterate) {
 // Get point data; wrap coordinates to fit segment box.
 double* get_point_address(int x, int y) {
 	if (x < 0) {
-		x += segment_size_x;
+		while (x < 0) {
+			x += segment_size_x;
+		}
 	} else {
 		while (x >= segment_size_x) {
 			x -= segment_size_x;
 		}
 	}
 	if (y < 0) {
-		y += segment_size_y;
+		while (y < 0) {
+			y += segment_size_y;
+		}
 	} else {
 		while (y >= segment_size_y) {
 			y -= segment_size_y;
@@ -336,19 +388,35 @@ int bottom_point(const int x, const int y) {
 }
 
 int left_segment() {
-	return left_point(process_x, process_y);
+	if (0 >= process_x) {
+		return -1;
+	}
+
+	return process_y * process_board_x + process_x - 1;
 }
 
 int right_segment() {
-	return right_point(process_x, process_y);
+	if (process_x + 1 >= process_board_x) {
+		return -1;
+	}
+
+	return process_y * process_board_x + process_x + 1;
 }
 
 int top_segment() {
-	return top_point(process_x, process_y);
+	if (0 >= process_y) {
+		return -1;
+	}
+
+	return (process_y - 1) * process_board_x + process_x;
 }
 
 int bottom_segment() {
-	return bottom_point(process_x, process_y);
+	if (process_y + 1 >= process_board_y) {
+		return -1;
+	}
+
+	return (process_y + 1) * process_board_x + process_x;
 }
 
 int file_exists(const char* filename) {
